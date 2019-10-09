@@ -1,0 +1,70 @@
+/*===================Signin with fb ====================== */
+function logfb() {
+    var provider = new firebase.auth.FacebookAuthProvider();
+    provider.setCustomParameters({
+        'display': 'popup'
+    });
+    firebase.auth().signInWithPopup(provider).then(function (result) {
+
+        var token = result.credential.accessToken;
+        console.log(token)
+        // The signed-in user info.
+        var user = result.user;
+        var displayname = user.displayName;
+        var email = user.email;
+        var phoneNumber = user.phoneNumber;
+        var photoURL = user.photoURL;
+        var uid = user.uid;
+        var userObj = {
+            displayname,
+            email,
+            phoneNumber,
+            photoURL,
+            createTime: new Date().toLocaleString(),
+            uid
+        }
+        if (user !== null) {
+            firebase.database().ref().child(`Users/${userObj.uid}`)
+                .set(userObj)
+                .then((success) => {
+                    localStorage.setItem('userData', JSON.stringify(success))
+                    // Get the snackbar DIV
+                    var x = document.getElementById("snackbar");
+
+                    // Add the "show" class to DIV
+                    x.className = "show";
+
+                    // After 3 seconds, remove the show class from DIV
+                    setTimeout(function () {
+                        x.className = x.className.replace("show", "");
+                        // console.log('data saved' + obj)
+                        // alert('data saved in firebase')
+                        window.location.href = './index.html'
+                    }, 3000);
+                    alertify.alert('Success')
+                    window.location.href = './pages/adcrte.html'
+                })
+                .catch((err) => {
+                    console.log(err)
+                    alertify.alert('Error' + err)
+                })
+        }
+
+
+
+        // ...
+    }).catch(function (error) {
+        // Handle Errors here.
+        var errorCode = error.code;
+        var errorMessage = error.message;
+        console.log(errorMessage)
+        // The email of the user's account used.
+        var email = error.email;
+        console.log(email)
+        // The firebase.auth.AuthCredential type that was used.
+        var credential = error.credential;
+        console.log(credential)
+        // ...
+    });
+}
+/*===================Signin with fb ====================== */

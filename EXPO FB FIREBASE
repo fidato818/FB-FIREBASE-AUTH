@@ -1,0 +1,64 @@
+  async loginWithFacebook() {
+    const {
+      type,
+      token,
+      expires,
+      permissions,
+      declinedPermissions,
+    } = await Facebook.logInWithReadPermissionsAsync('440214823247638', {
+      permissions: ['public_profile'],
+    });
+
+    if (type === 'success') {
+      // Get the user's name using Facebook's Graph API
+      const credential = firebase.auth.FacebookAuthProvider.credential(token);
+      firebase
+        .auth()
+        .signInWithCredential(credential)
+        .then(result => {
+          console.log(result);
+          var user = result.user;
+          var displayname = user.displayName;
+          var email = user.email;
+          var phoneNumber = user.phoneNumber;
+          var photoURL = user.photoURL;
+          var uid = user.uid;
+          var userObj = {
+            displayname,
+            email,
+            phoneNumber,
+            photoURL,
+            createTime: new Date().toLocaleString(),
+            uid,
+          };
+          if (user !== null) {
+            firebase
+              .database()
+              .ref(`Users/${userObj.uid}`)
+              .set(userObj);
+          }
+        })
+
+        .catch(e => {
+          console.log('e ===>', `${e}`);
+        });
+    }
+  }
+
+  componentDidMount() {
+    this.authListener();
+  }
+
+  authListener() {
+    firebase.auth().onAuthStateChanged(user => {
+      if (user) {
+        console.log('user changed..', user);
+        this.setState({
+          user: user.email,
+        });
+      } else {
+        // No user is signed in.
+        // browserHistory.push('/signin');
+      }
+    });
+  }

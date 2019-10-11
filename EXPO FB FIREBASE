@@ -5,7 +5,7 @@
       expires,
       permissions,
       declinedPermissions,
-    } = await Facebook.logInWithReadPermissionsAsync('440214823247638', {
+    } = await Facebook.logInWithReadPermissionsAsync('FACEBOOK_APP_ID', {
       permissions: ['public_profile'],
     });
 
